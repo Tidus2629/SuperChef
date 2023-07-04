@@ -24,7 +24,6 @@ public class ObjectPuzzlePart : ObjectInteract
     {
         mRigidbody.useGravity = false;
         mRigidbody.isKinematic = true;
-       // GetComponent<Collider>().enabled = false;
     }    
 
     public override void BeginControl()
@@ -89,15 +88,6 @@ public class ObjectPuzzlePart : ObjectInteract
     {
         if (isDroped && !isOnControl)
         {
-            //if (needFreeze)
-            //{
-            //    if (collision.gameObject.GetComponent<ObjectInteract>() != null || collision.transform.parent.GetComponent<ObjectInteract>() != null)
-            //    {
-            //        mRigidbody.velocity = Vector3.zero;
-            //        mRigidbody.angularVelocity = Vector3.zero;
-            //    }
-            //}
-
             isDroped = false;
         }
     }

@@ -94,10 +94,13 @@ public class LevelManager : MonoBehaviour
     public void StartPlay()
     {
 
-        player.transform.DOMove(pointCamPlay.position, 1f);
-        player.transform.DORotate(pointCamPlay.eulerAngles, 1f);
-        player.enabled = true;
-        player.hand.gameObject.SetActive(true);
+        player.transform.DOMove(pointCamPlay.position, 1f).OnComplete(()=>
+        {
+            player.transform.DORotate(pointCamPlay.eulerAngles, 1f);
+            player.enabled = true;
+            player.hand.gameObject.SetActive(true);
+        });
+        
         ActiveObject();
     }
 
