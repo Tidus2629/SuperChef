@@ -4,28 +4,32 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ObjectPuzzlePart : ObjectInteract
+public class Ketchap : ObjectInteract
 {
-
-    public GameObject shadowObject;
-    public ObjectPuzzle mainObject;
-    //public List<Transform> otherPart;
-    //public List<Transform> other
-    private bool isDroped;
-    private bool needCheckCorrect;
     private bool canDrag;
     private Vector3 originPoint;
+    public GameObject fluid;
+    private bool isDragging;
+    public float timeToFlush;
+    private float currentTimeToFlush;
+    private float currentForceFlush;
     private void Start()
     {
-        initRotate = shadowObject.transform.rotation;
+        currentTimeToFlush = timeToFlush;
+    }
+
+    public override void Active()
+    {
+        base.Active();
+        gameObject.SetActive(false);
     }
 
     public void Deactive()
     {
         mRigidbody.useGravity = false;
         mRigidbody.isKinematic = true;
-       // GetComponent<Collider>().enabled = false;
-    }    
+        GetComponent<Collider>().enabled = false;
+    }
 
     public override void BeginControl()
     {
@@ -36,7 +40,9 @@ public class ObjectPuzzlePart : ObjectInteract
         });
         mRigidbody.constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezeRotationX;
         transform.DORotateQuaternion(initRotate, 0.2f);
-        needCheckCorrect = false;
+        fluid.SetActive(true);
+        mAnimator.SetTrigger("Flush");
+        isDragging = true;
     }
 
 
@@ -49,29 +55,31 @@ public class ObjectPuzzlePart : ObjectInteract
 
     private void Update()
     {
-        if (needCheckCorrect)
+        if (isDragging)
         {
-            if (mRigidbody.velocity.magnitude <= 0 && mRigidbody.angularVelocity.magnitude <= 0)
+            currentTimeToFlush -= Time.deltaTime;
+            currentForceFlush += Time.deltaTime;
+            mAnimator.SetFloat("ForceFlush", currentForceFlush);
+            if (currentTimeToFlush < 0)
             {
-                mainObject.CheckComplete();
-                needCheckCorrect = false;
+                currentTimeToFlush = 0;
+                isDragging = false;
+                LevelManager.Instance.ShowResult();
+                fluid.transform.parent = null;
+                gameObject.SetActive(false);
             }
+
         }
     }
 
-
     public override void EndControl(GestureRecognizer gesture)
     {
-
         ObjectPuzzle.waitCheckCorrect = true;
-
         canDrag = false;
         mRigidbody.useGravity = true;
         mRigidbody.isKinematic = false;
         isOnControl = false;
-
         mRigidbody.constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationX;
-        isDroped = true;
         Vector3 dir = new Vector3(gesture.DeltaX, gesture.DeltaY, 0);
         if (dir.magnitude > 10)
         {
@@ -80,25 +88,6 @@ public class ObjectPuzzlePart : ObjectInteract
         else
         {
             mRigidbody.AddForce(Vector3.down * 2f, ForceMode.Impulse);
-        }
-        needCheckCorrect = true;
-        ObjectPuzzle.waitCheckCorrect = true;
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (isDroped && !isOnControl)
-        {
-            //if (needFreeze)
-            //{
-            //    if (collision.gameObject.GetComponent<ObjectInteract>() != null || collision.transform.parent.GetComponent<ObjectInteract>() != null)
-            //    {
-            //        mRigidbody.velocity = Vector3.zero;
-            //        mRigidbody.angularVelocity = Vector3.zero;
-            //    }
-            //}
-
-            isDroped = false;
         }
     }
 }

@@ -19,6 +19,9 @@ public class LevelManager : MonoBehaviour
     public Transform pointService;
     public GameObject uiItem;
     public Transform pointCamPlay;
+    public InGameUIController uiController;
+    private int star;
+    public GameObject ketchap;
     private void Awake()
     {
         if (Instance == null)
@@ -29,11 +32,6 @@ public class LevelManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-    }
-
-    private void Start()
-    {
-        // Invoke("ActiveObject", 2);
     }
 
     public void ClickPlay()
@@ -59,9 +57,43 @@ public class LevelManager : MonoBehaviour
         Invoke("StartPlay", 3);
     }
 
-    public void StartPlay()
+    public void SetStar(int star)
+    {
+        this.star = star;
+    }
+
+    public void ShowKetchap()
+    {
+        ketchap.SetActive(true);
+    }
+
+    public void ShowResult()
     {
         uiItem.SetActive(false);
+
+        if (star >= 2)
+        {
+            guest.GetComponent<Animator>().SetTrigger("Like");
+        }
+        else
+        {
+            guest.GetComponent<Animator>().SetTrigger("DisLike");
+        }
+
+        StartCoroutine(ShowUiResult());
+    }
+
+    private IEnumerator ShowUiResult()
+    {
+        yield return new WaitForSeconds(3);
+        uiController.ShowRate(star);
+        yield return new WaitForSeconds(2);
+        GameManager.Instance.GameOver(star >= 2);
+    }
+
+    public void StartPlay()
+    {
+
         player.transform.DOMove(pointCamPlay.position, 1f);
         player.transform.DORotate(pointCamPlay.eulerAngles, 1f);
         player.enabled = true;
@@ -88,5 +120,5 @@ public class LevelManager : MonoBehaviour
         Resources.UnloadUnusedAssets();
     }
 
-   
+
 }

@@ -12,8 +12,20 @@ public class ObjectPuzzle : MonoBehaviour
 
     private void CompleteObject()
     {
-        Debug.Log("AAAAAAAAAAAA:" + pointAccuracy);
-        GameManager.Instance.GameOver(pointAccuracy > 4.5f);
+        for (int i = 0; i < listPart.Count; i++)
+        {
+            listPart[i].Deactive();
+        }
+        if (pointAccuracy >= 5)
+            LevelManager.Instance.SetStar(3);
+        else if (pointAccuracy >= 4.5f && pointAccuracy < 5)
+            LevelManager.Instance.SetStar(2);
+        else if (pointAccuracy < 4.5)
+            LevelManager.Instance.SetStar(1);
+
+        //LevelManager.Instance.ShowKetchap();
+        LevelManager.Instance.ShowResult();
+
     }
 
     public void CheckComplete()
@@ -35,7 +47,7 @@ public class ObjectPuzzle : MonoBehaviour
         //  yield return new WaitForSeconds(2);
         if (IsCorrect())
         {
-            // isDone = true;
+            isDone = true;
             // GetComponent<AudioSource>().Play();
             CompleteObject();
         }
@@ -158,5 +170,14 @@ public class ObjectPuzzle : MonoBehaviour
                 //Debug.Log(angle + ":" + angle_2);
             }
         }
+    }
+
+    public void SetPositionToEat()
+    {
+        for (int i = 1; i < listPart.Count; i++)
+        {
+            listPart[i].transform.parent = listPart[0].transform;
+        }
+        listPart[0].transform.localPosition = Vector3.zero;
     }
 }
